@@ -1,182 +1,205 @@
 <html ng-app="ContiApp">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-    
-    <title>Add Rows</title>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+		
+		<title>Home Expenses</title>
 
-    <link href="css/foundation.css" rel="stylesheet">
-    <style type="text/css">
-			.css-form input.ng-invalid.ng-touched {
-				background-color: #FA787E;
-			}
-			.css-form input.ng-valid.ng-touched {
-				background-color: #78FA89;
-			}
-    </style>
-    <script type="text/javascript" src="js/script.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
-    <!--localization features come from https://github.com/lavinjj/angularjs-localizationservice-->
-    <script type="text/javascript" src="js/ng-localize.js"></script>
-    <script type="text/javascript" src="js/ng-controller.js"></script>
-    <script type="text/javascript" src="js/ng-LocalizeController.js"></script>
-  </head>
-
-  <body>
-    
-    <div ng-controller="ContiController">
-    <a href="#" ng-click="setEnglishLanguage()">English</a> | <a href="#" ng-click="setItalianLanguage()">Italian</a>
-    <form id="contiForm" name="contiForm" style="width:800px" novalidate data-custom-submit="submit()" class="css-form">
-			<div style="background: #cabfee; padding-left: 3em">{{users.from.name}}: <span data-i18n="subtitle_expense"></span></div>
-			<table id="table1">
-				<thead>
-					<tr>
-						<th width="200">Cosa</th><th width="100">Quanto</th><th width="150">Quando</th><th width="250">Dove</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="r in expenseRows">
-						<td>
-							<ng-form name="expenseInnerFormWhat{{r}}">
-								<input type="text" name="what" ng-model="formData.expense.what[r]" ng-minlength="4" required/>
-								<div style="color:red" ng-show="expenseInnerFormWhat{{r}}.what.$touched && expenseInnerFormWhat{{r}}.what.$invalid">
+    	<link href="css/foundation.css" rel="stylesheet">    	
+		<link href="css/main.css" rel="stylesheet">
+		
+		<script src="//www.parsecdn.com/js/parse-1.6.12.min.js"></script>
+		<script type="text/javascript" src="js/script.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+		<!--localization features come from https://github.com/lavinjj/angularjs-localizationservice-->
+		<script type="text/javascript" src="js/ng/modules/localize/LocalizeService.js"></script>
+		<script type="text/javascript" src="js/ng/Controller.js"></script>
+		<script type="text/javascript" src="js/ng/modules/localize/LocalizeController.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-resource.js"></script>
+	</head>
+	<body>
+	    <div ng-controller="ContiController" style="width: 800px">
+	    	<div class="float-left clear-both background-green-light" style="width: 800px; margin-bottom:3em;">
+	    		<h3 class="float-left" style="clear:none; margin-left:10em">Home Expenses</h3>
+		    	<div style="float:right;clear:none">
+			    	<a href="#" ng-click="setItalianLanguage()"><span data-i18n="language_italian"></span></a> |
+			    	<a href="#" ng-click="setEnglishLanguage()"><span data-i18n="language_english"></span></a>
+		    	</div>
+	    	</div>
+	    	<div id="error_no_params" ng-show="!isParamsExistant" class="float-left clear-both" style="margin:2em;">
+	    		<div style="background: #cc0000;">Sorry, no right params</div>
+	    		<div style="color:#cc0000">Url must be end with ?from=YOUR_USERNAME&to=PEER_USERNAME</div>
+	    		<div style="color:#cc0000">example: ?from=giovanna&to=massimiliano</div>
+	    	</div>
+		    <form id="contiForm" name="contiForm" data-custom-submit="submit()" ng-show="isParamsExistant" novalidate class="css-form float-left clear-both">
+				<div style="background: #cabfee; padding-left: 3em">{{users.from.name}}: <span data-i18n="subtitle_expense"></span></div>
+				<table id="table_expense">
+					<thead>
+						<tr>
+							<th width="200">Cosa</th><th width="100">Quanto</th><th width="150">Quando</th><th width="250">Dove</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="r in expenseRows">
+							<td>
+								<ng-form name="expenseInnerFormWhat{{r}}">
+									<input type="text" name="what" ng-model="formData.expense[r].what" ng-minlength="4" required/>
+									<div style="color:red" ng-show="expenseInnerFormWhat{{r}}.what.$touched && expenseInnerFormWhat{{r}}.what.$invalid">
 										<div ng-show="expenseInnerFormWhat{{r}}.what.$error.required">
 											<span data-i18n="error_required"></span>
 										</div>
-								</div>
-								<div style="color:red" ng-show="expenseInnerFormWhat{{r}}.what.$dirty && expenseInnerFormWhat{{r}}.what.$invalid">
+									</div>
+									<div style="color:red" ng-show="expenseInnerFormWhat{{r}}.what.$dirty && expenseInnerFormWhat{{r}}.what.$invalid">
 										<div ng-show="expenseInnerFormWhat{{r}}.what.$error.minlength">
 											<span data-i18n="error_text_min_4_chars"></span>
 										</div>										
-								</div>
-								<div style="color:white" ng-show="!expenseInnerFormWhat{{r}}.what.$touched">-</div>
-							</ng-form>
-						</td>
-						<td>
-							<ng-form name="expenseInnerFormHowmuch{{r}}">
-								<input type="number" name="howmuch" ng-model="formData.expense.howmuch[r]" min="0.01" required/>
-								<div style="color:red" ng-show="expenseInnerFormHowmuch{{r}}.howmuch.$touched && expenseInnerFormHowmuch{{r}}.howmuch.$invalid">
+									</div>
+									<div style="color:white" ng-show="!expenseInnerFormWhat{{r}}.what.$touched">-</div>
+								</ng-form>
+							</td>
+							<td>
+								<ng-form name="expenseInnerFormHowmuch{{r}}">
+									<input type="number" name="howmuch" ng-model="formData.expense[r].howmuch" min="0.01" required/>
+									<div style="color:red" ng-show="expenseInnerFormHowmuch{{r}}.howmuch.$touched && expenseInnerFormHowmuch{{r}}.howmuch.$invalid">
 										<div ng-show="expenseInnerFormHowmuch{{r}}.howmuch.$error.required">
 											<span data-i18n="error_required"></span>
 										</div>
-								</div>
-								<div style="color:red" ng-show="expenseInnerFormHowmuch{{r}}.howmuch.$dirty && expenseInnerFormHowmuch{{r}}.howmuch.$invalid">
+									</div>
+									<div style="color:red" ng-show="expenseInnerFormHowmuch{{r}}.howmuch.$dirty && expenseInnerFormHowmuch{{r}}.howmuch.$invalid">
 										<div ng-show="expenseInnerFormHowmuch{{r}}.howmuch.$error.min">
 											<span data-i18n="error_number_min_1_cent"></span>
 										</div>
-								</div>
-								<div style="color:white" ng-show="!expenseInnerFormHowmuch{{r}}.howmuch.$touched">-</div>
-							</ng-form>
-						</td>
-						<td>
-							<ng-form name="expenseInnerFormWhen{{r}}">
-								<input type="date" name="when" ng-model="formData.expense.when[r]" min="2016-01-01" max="2016-12-31" required/>
-								<div style="color:red" ng-show="expenseInnerFormWhen{{r}}.when.$touched && expenseInnerFormWhen{{r}}.when.$invalid">
+									</div>
+									<div style="color:white" ng-show="!expenseInnerFormHowmuch{{r}}.howmuch.$touched">-</div>
+								</ng-form>
+							</td>
+							<td>
+								<ng-form name="expenseInnerFormWhen{{r}}">
+									<input type="date" name="when" ng-model="formData.expense[r].when" min="2016-01-01" max="2016-12-31" required/>
+									<div style="color:red" ng-show="expenseInnerFormWhen{{r}}.when.$touched && expenseInnerFormWhen{{r}}.when.$invalid">
 										<div ng-show="expenseInnerFormWhen{{r}}.when.$error.required">
 											<span data-i18n="error_required"></span>
 										</div>
-								</div>
-								<div style="color:red" ng-show="expenseInnerFormWhen{{r}}.when.$dirty && expenseInnerFormWhen{{r}}.when.$invalid">
+									</div>
+									<div style="color:red" ng-show="expenseInnerFormWhen{{r}}.when.$dirty && expenseInnerFormWhen{{r}}.when.$invalid">
 										<div ng-show="expenseInnerFormWhen{{r}}.when.$error.date">
 											<span data-i18n="error_date_interval"></span>
 										</div>
-								</div>
-								<div style="color:white" ng-show="!expenseInnerFormWhen{{r}}.when.$touched">-</div>
-							</ng-form>
-						</td>
-						<td>
-							<ng-form name="expenseInnerFormWhere{{r}}">
-							<input type="text" name="where" ng-model="formData.expense.where[r]" ng-minlength="4" required/>
-							<div style="color:red" ng-show="expenseInnerFormWhere{{r}}.where.$touched && expenseInnerFormWhere{{r}}.where.$invalid">
+									</div>
+									<div style="color:white" ng-show="!expenseInnerFormWhen{{r}}.when.$touched">-</div>
+								</ng-form>
+							</td>
+							<td>
+								<ng-form name="expenseInnerFormWhere{{r}}">
+								<input type="text" name="where" ng-model="formData.expense[r].where" ng-minlength="4" required/>
+								<div style="color:red" ng-show="expenseInnerFormWhere{{r}}.where.$touched && expenseInnerFormWhere{{r}}.where.$invalid">
 									<div ng-show="expenseInnerFormWhere{{r}}.where.$error.required">
 										<span data-i18n="error_required"></span>
 									</div>										
-							</div>
-							<div style="color:red" ng-show="expenseInnerFormWhere{{r}}.where.$dirty && expenseInnerFormWhere{{r}}.where.$invalid">
+								</div>
+								<div style="color:red" ng-show="expenseInnerFormWhere{{r}}.where.$dirty && expenseInnerFormWhere{{r}}.where.$invalid">
 									<div ng-show="expenseInnerFormWhere{{r}}.where.$error.minlength">
 										<span data-i18n="error_text_min_4_chars"></span>
 									</div>										
-							</div>
-							<div style="color:white" ng-show="!expenseInnerFormWhere{{r}}.where.$touched">-</div>
-							</ng-form>
-						</td>
-					</tr>
-					
-				</tbody>
-			</table>
-			<a href="#" class="button" ng-click="expenseAddRow()">Aggiungi riga spese</a>
-			<a href="#" class="button" ng-click="expenseRemoveRow()">Elimina riga spese</a>
-			
-			<div style="background: #cabfee; padding-left: 3em; width: 550px">{{users.from.name}}: <span data-i18n="subtitle_credit"></span>{{users.to.name}}</div>
-			<table id="table2">
-				<thead>
-					<tr>
-						<th width="200">Cosa</th><th width="100">Quanto</th><th width="150">Quando</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="r in creditRows">
+								</div>
+								<div style="color:white" ng-show="!expenseInnerFormWhere{{r}}.where.$touched">-</div>
+								</ng-form>
+							</td>
+							<td style="display: none">
+								<input type="text" name="username" ng-model="formData.expense[r].username" ng-init="formData.expense[r].username=users.from.username" value="{{users.from.username}}"/>
+							</td>
+						</tr>					
+					</tbody>
+				</table>
+				<a href="#" class="button" ng-click="expenseAddRow()"><span data-i18n="button_add_expense_row"></span></a>
+				<a href="#" class="button" ng-click="expenseRemoveRow()"><span data-i18n="button_remove_expense_row"></span></a>
+				
+				<div style="background: #cabfee; padding-left: 3em; width: 550px">{{users.from.name}}: <span data-i18n="subtitle_credit"></span>{{users.to.name}}</div>
+				<table id="table_credit">
+					<thead>
+						<tr>
+							<th width="200">Cosa</th><th width="100">Quanto</th><th width="150">Quando</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="r in creditRows">
 							<td>
 								<ng-form name="creditInnerFormWhat{{r}}">
-									<input type="text" name="what" ng-model="formData.credit.what[r]" ng-minlength="4" required/>
+									<input type="text" name="what" ng-model="formData.credit[r].what" ng-minlength="4" required/>
 									<div style="color:red" ng-show="creditInnerFormWhat{{r}}.what.$touched && creditInnerFormWhat{{r}}.what.$invalid">
-											<div ng-show="creditInnerFormWhat{{r}}.what.$error.required">
-												<span data-i18n="error_required"></span>
-											</div>										
+										<div ng-show="creditInnerFormWhat{{r}}.what.$error.required">
+											<span data-i18n="error_required"></span>
+										</div>										
 									</div>
 									<div style="color:red" ng-show="creditInnerFormWhat{{r}}.what.$dirty && creditInnerFormWhat{{r}}.what.$invalid">
-											<div ng-show="creditInnerFormWhat{{r}}.what.$error.minlength">
-												<span data-i18n="error_text_min_4_chars"></span>
-											</div>										
+										<div ng-show="creditInnerFormWhat{{r}}.what.$error.minlength">
+											<span data-i18n="error_text_min_4_chars"></span>
+										</div>										
 									</div>
 									<div style="color:white" ng-show="!creditInnerFormWhat{{r}}.what.$touched">-</div>
 								</ng-form>
 							</td>
 							<td>
 								<ng-form name="creditInnerFormHowmuch{{r}}">
-									<input type="number" name="howmuch" ng-model="formData.credit.howmuch[r]" min="0.01" required/>
+									<input type="number" name="howmuch" ng-model="formData.credit[r].howmuch" min="0.01" required/>
 									<div style="color:red" ng-show="creditInnerFormHowmuch{{r}}.howmuch.$touched && creditInnerFormHowmuch{{r}}.howmuch.$invalid">
-											<div ng-show="creditInnerFormHowmuch{{r}}.howmuch.$error.required">
-												<span data-i18n="error_required"></span>
-											</div>
+										<div ng-show="creditInnerFormHowmuch{{r}}.howmuch.$error.required">
+											<span data-i18n="error_required"></span>
+										</div>
 									</div>
 									<div style="color:red" ng-show="creditInnerFormHowmuch{{r}}.howmuch.$dirty && creditInnerFormHowmuch{{r}}.howmuch.$invalid">
-											<div ng-show="creditInnerFormHowmuch.howmuch{{r}}.$error.min">
-												<span data-i18n="error_number_min_1_cent"></span>
-											</div>
+										<div ng-show="creditInnerFormHowmuch.howmuch{{r}}.$error.min">
+											<span data-i18n="error_number_min_1_cent"></span>
+										</div>
 									</div>
 									<div style="color:white" ng-show="!creditInnerFormHowmuch{{r}}.howmuch.$touched">-</div>
 								</ng-form>
 							</td>
 							<td>
 								<ng-form name="creditInnerFormWhen{{r}}">
-									<input type="date" name="when" ng-model="formData.credit.when[r]" min="2016-01-01" max="2016-12-31" required/>
+									<input type="date" name="when" ng-model="formData.credit[r].when" min="2016-01-01" max="2016-12-31" required/>
 									<div style="color:red" ng-show="creditInnerFormWhen{{r}}.when.$touched && creditInnerFormWhen{{r}}.when.$invalid">
-											<div ng-show="creditInnerFormWhen{{r}}.when.$error.required">
-												<span data-i18n="error_required"></span>
-											</div>
+										<div ng-show="creditInnerFormWhen{{r}}.when.$error.required">
+											<span data-i18n="error_required"></span>
+										</div>
 									</div>
 									<div style="color:red" ng-show="creditInnerFormWhen{{r}}.when.$dirty && creditInnerFormWhen{{r}}.when.$invalid">
-											<div ng-show="creditInnerFormWhen.when{{r}}.$error.date">
-												<span data-i18n="error_date_interval"></span>
-											</div>
+										<div ng-show="creditInnerFormWhen.when{{r}}.$error.date">
+											<span data-i18n="error_date_interval"></span>
+										</div>
 									</div>								
 									<div style="color:white" ng-show="!creditInnerFormWhen{{r}}.when.$touched">-</div>
 								</ng-form>
 							</td>
-					</tr>
-				</tbody>
-			</table>    
-			<a href="#" class="button" ng-click="creditAddRow()">Aggiungi riga credito</a>
-			<a href="#" class="button" ng-click="creditRemoveRow()">Elimina riga credito</a>
+							<td style="display: none">
+								<input type="text" name="username" ng-model="formData.credit[r].username" ng-init="formData.credit[r].username=users.from.username" value="{{users.from.username}}"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>    
+				<a href="#" class="button" ng-click="creditAddRow()"><span data-i18n="button_add_credit_row"></span></a>
+				<a href="#" class="button" ng-click="creditRemoveRow()"><span data-i18n="button_remove_credit_row"></span></a>
+				
+				<!-- <div style="background: #cabfee; margin-top: 0em; padding-left: 1em; width: 19em"><span data-i18n="label_remove_empty_rows"></span></div> -->
+				
+				
+				<button type="submit" style="background-color: #cc0000; display: none">Submit</button>
+			</form>
 			
-			<div style="background: #cabfee; padding-left: 3em; width: 300px"> Se hai righe vuote, eliminale </div>
+			<button type="submit" class="float-left clear-both" style="background-color: #cc0000; margin-top: 1em" ng-click="submitUsingFactory(); divResultTarget.focus();">Submit</button>
 			
-			<!--<div style="color:red" ng-show="expenseInnerFormHowmuch.howmuch.$touched && expenseInnerFormHowmuch.howmuch.$invalid">
-			<div ng-show="expenseInnerFormWhat.what.$error.required">-->
-			<button type="submit" class="btn btn-primary" >Submit</button>
-		</form>
+			<div id="result" style="float:left;clear: both" ng-model="divResultTarget">
+				<div ng-repeat="(key,value) in result.classes" class="float-left clear-both">
+					<div class="float-left clear-both" style="margin: 0 3em 1em 0; padding: 0 1em 0 1em;" ng-show="value.progress.toProcess>0" focusOnShow ng-class="{y: 'background-yellow-light', g: 'background-green-light'}[resultBackground(value.progress.processed, value.progress.toProcess)]">
+						Result for {{key}}: {{value.progress.processed}}/{{value.progress.toProcess}} ok
+					</div>
+				</div>
+				<div ng-show="result[t].isError" class="background-yellow-red">
+					<div ng-repeat="e in result.error.details" style="background-color: #fffff">
+						error: {{e.code}} {{e.message}}
+					</div>
+				</div>
+			</div>
 		</div>
-    
-  </body>
+	</body>
 </html>

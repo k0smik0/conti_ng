@@ -1,4 +1,14 @@
 [
+ 	{
+ 		"key": "language_english",
+ 		"value": "English",
+ 		"description": ""
+ 	},
+ 	{
+ 		"key": "language_italian",
+ 		"value": "Italian",
+ 		"description": ""
+ 	},
 	{
 		"key": "error_required",
 		"value": "required",
@@ -31,8 +41,28 @@
 	},
 	
 	{
-		"key":"b",
-		"value":"",
+		"key": "button_add_expense_row",
+		"value": "Add expense row",
+		"description": ""
+	},
+	{
+		"key": "button_remove_expense_row",
+		"value": "Remove expense row",
+		"description": ""
+	},
+	{
+		"key": "button_add_credit_row",
+		"value": "Add credit row",
+		"description": ""
+	},
+	{
+		"key": "button_remove_credit_row",
+		"value": "Remove credit row",
+		"description": ""
+	},
+	{
+		"key": "label_remove_empty_rows",
+		"value": "If there are empty rows, remove them",
 		"description": ""
 	}
 ]

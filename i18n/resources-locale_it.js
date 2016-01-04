@@ -1,5 +1,15 @@
 [
 	{
+		"key": "language_english",
+		"value": "Inglese",
+		"description": ""
+	},
+	{
+		"key": "language_italian",
+		"value": "Italiano",
+		"description": ""
+	},
+	{
 		"key": "error_required",
 		"value": "obbligatorio",
 		"description": ""
@@ -16,7 +26,7 @@
 	},
 	{
 		"key":"error_date_interval",
-		"value":"data non valida
+		"value":"data non valida",
 		"description": ""
 	},
 	{
@@ -29,10 +39,29 @@
 		"value":"Credito - prestiti a ",
 		"description": ""
 	},
-	
 	{
-		"key":"a",
-		"value":"",
+		"key": "button_add_expense_row",
+		"value": "Aggiungi riga spesa",
+		"description": ""
+	},
+	{
+		"key": "button_remove_expense_row",
+		"value": "Rimuovi riga spesa",
+		"description": ""
+	},
+	{
+		"key": "button_add_credit_row",
+		"value": "Aggiungi riga credito",
+		"description": ""
+	},
+	{
+		"key": "button_remove_credit_row",
+		"value": "Rimuovi riga credito",
+		"description": ""
+	},
+	{
+		"key": "label_remove_empty_rows",
+		"value": "Se ci sono righe vuote, eliminale",
 		"description": ""
 	}
 ]

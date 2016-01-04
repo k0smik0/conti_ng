@@ -108,7 +108,7 @@ angular.module('localization', [])
                 getLocalizedString: function(KEY) {
                     // default the result to an empty string
                     var result = '';
-
+                    
                     // make sure the dictionary has valid data
                     if (localize.resourceFileLoaded) {
                         // use the filter service to only return those entries which match the KEY
@@ -151,6 +151,7 @@ angular.module('localization', [])
                 var values = token.split('|');
                 if (values.length >= 1) {
                     // construct the tag to insert into the element
+//                	console.log( values[0] );
                     var tag = localize.getLocalizedString(values[0]);
                     // update the element only if data was returned
                     if ((tag !== null) && (tag !== undefined) && (tag !== '')) {
