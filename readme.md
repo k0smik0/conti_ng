@@ -1,7 +1,9 @@
-## conti_ng
+## Conti
 
-Conti is a home expenses management tool: conti_app is the Android app, conti_ng is the web client, conti_gas is the GoogleAppsScript
-An Android app providing a dynamic form (an adding-row table): 
-this is part of a major project. It send data from from to Parse.com storage, and finally a Google Spreadsheet will process them showing results and chart.
-A web client is available at [conti_ng](../../../conti_ng)
-The complete project is a home expenses management.
+Conti is a home expenses management tool: 
+ * conti_app is the Android app [conti_app](../../../conti_app)
+ * conti_ng is the web client (this one)
+ * conti_gas is the backend part, in GoogleAppsScript: it retrieve data from Parse.com (which app and web client send data to), then populate a Spreadsheet with meanful data; finally, the spreadsheet formulas gives results and charts - it is still in development
+ 
+The web client part uses AngularJS with Parse.com Javascript API.
+
