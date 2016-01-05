@@ -7,3 +7,4 @@ Conti is a home expenses management tool:
  
 The web client part uses AngularJS with Parse.com Javascript API.
 
+![screenshot](conti_ng__screenshot.png)
