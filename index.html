@@ -21,9 +21,8 @@
 	    <div ng-controller="ContiController" style="width: 800px; margin: auto">
 	    	<div class="float-left clear-both background-green-light" style="width: 800px; margin-bottom:3em;">
 	    		<h3 class="float-left" style="clear:none; margin-left:10em">Home Expenses</h3>
-		    	<div style="float:right;clear:none">
-			    	<a href="#" ng-click="setItalianLanguage()"><span data-i18n="language_italian"></span></a> |
-			    	<a href="#" ng-click="setEnglishLanguage()"><span data-i18n="language_english"></span></a>
+		    	<div style="float:right;clear:none;margin-right:5px">
+			    	<a href="#" ng-click="setItalianLanguage()"><span data-i18n="language_italian"></span></a> | <a href="#" ng-click="setEnglishLanguage()"><span data-i18n="language_english"></span></a>
 		    	</div>
 	    	</div>
 	    	<div id="error_no_params" ng-show="!isParamsExistant" class="float-left clear-both" style="margin:2em;">
@@ -108,13 +107,17 @@
 							<td style="display: none">
 								<input type="text" name="username" ng-model="formData.expense[r].username" ng-init="formData.expense[r].username=users.from.username" value="{{users.from.username}}"/>
 							</td>
+                     <td style="display: none">
+								<input type="text" name="sheeted" ng-model="formData.expense[r].sheeted" ng-init="formData.expense[r].sheeted=sheeted_default" value="{{sheeted_default}}"/>
+							</td>
+
 						</tr>					
 					</tbody>
 				</table>
 				<a href="#" class="button" ng-click="expenseAddRow()"><span data-i18n="button_add_expense_row"></span></a>
 				<a href="#" class="button" ng-click="expenseRemoveRow()"><span data-i18n="button_remove_expense_row"></span></a>
 				
-				<div style="background: #cabfee; padding-left: 3em; width: 550px">{{users.from.name}}: <span data-i18n="subtitle_credit"></span>{{users.to.name}}</div>
+				<div style="background: #cabfee; padding-left: 3em; width: 560px">{{users.from.name}}: <span data-i18n="subtitle_credit"></span>{{users.to.name}}</div>
 				<table id="table_credit">
 					<thead>
 						<tr>
@@ -174,6 +177,10 @@
 							<td style="display: none">
 								<input type="text" name="username" ng-model="formData.credit[r].username" ng-init="formData.credit[r].username=users.from.username" value="{{users.from.username}}"/>
 							</td>
+                     <td style="display: none">
+								<input type="text" name="sheeted" ng-model="formData.credit[r].sheeted" ng-init="formData.credit[r].sheeted=sheeted_default" value="{{sheeted_default}}"/>
+							</td>
+
 						</tr>
 					</tbody>
 				</table>    
@@ -194,7 +201,7 @@
 						Result for {{key}}: {{value.progress.processed}}/{{value.progress.toProcess}} ok
 					</div>
 				</div>
-				<div ng-show="result[t].isError" class="background-yellow-red">
+				<div ng-show="result.isError" class="background-yellow-red">
 					<div ng-repeat="e in result.error.details" style="background-color: #fffff">
 						error: {{e.code}} {{e.message}}
 					</div>

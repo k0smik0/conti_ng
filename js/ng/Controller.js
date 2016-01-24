@@ -4,67 +4,66 @@ angular.module('ContiApp', ['localization','ngResource'])
 	var js_key = ParseConfig.javascript_key;
 	Parse.initialize(app_id, js_key);
 }])
-.factory('SubmitWithResult',function($q,$timeout){
-	
+.factory('SubmitWithResult',function($q,$timeout){	
 	var timeout = 2000;
 	var exec = function(formData,result) {
+// 		console.log("formData: "+JSON.stringify(formData));
 		var promises = [];
 		for (var i in ParseConfig.classes) {
 			var parseClassAsString = ParseConfig.classes[i];
 			var arrayData = formData[parseClassAsString];
-			result.classes[parseClassAsString].progress.toProcess = arrayData.length;
-			
+			var resultClass = result.classes[parseClassAsString];
+      resultClass.progress.processed = 0;
+// 			console.log(parseClassAsString+": "+arrayData.length);
+      resultClass.progress.toProcess = arrayData.length;
+
 			var ParseClass = Parse.Object.extend(parseClassAsString);
-			var parseObject = new ParseClass();
+// 			console.log("ParseClass: "+console.log(ParseClass));
 			for (var j in arrayData) {
 				var d = arrayData[j];
 				// remove empty item from empty row in form
-				if (isEmptyItem(d)) {
-//					console.log("splicing: "+JSON.stringify(d));
+				if (isEmptyItem(d, 'sheeted')) {
 					arrayData.splice(j,1);
-					result.classes[parseClassAsString].progress.toProcess--;
+					resultClass.progress.toProcess--;
+					console.log("spliced "+JSON.stringify(d)+" from "+ parseClassAsString +" - parseClassAsString: "+arrayData.length);
 					continue;
 				}
-				result.classes[parseClassAsString].remaining.push(d);
+				resultClass.remaining.push(d);
+// 				console.log("pushing: "+JSON.stringify(d));
+				var parseObject = new ParseClass();
+// 				console.log("parseObject: "+console.log(parseObject));
 				var p = parseObject.save(d);
 				promises.push( p );
 			}
-//			console.log("");
 		} // end for
 		
 		for (var i in promises) {
-			var promise = promises[i];			
+			var promise = promises[i];
+// 			console.log("satisfying promise: "+JSON.stringify(promise));
 			promise.then(
-				function(response) {
+				goodHandler = function(response) {
 					$timeout(function(){
 //						console.log("response: "+JSON.stringify(response));
-						var obj = JSON.parse( JSON.stringify(response)) ;
+						var obj = JSON.parse( JSON.stringify(response) );
 						var type;
-						if (obj.where == null || obj.where==undefined || obj.where == "") {
+						if (obj.where==null || obj.where==undefined || obj.where=="") {
 							type = "credit";
 							delete obj.where;
 						} else {
 							type = "expense";
 						}
-						delete obj.objectId; delete obj.createdAt;delete obj.updatedAt;
-//						console.log(type+" obj: "+JSON.stringify(obj));
-						
-//						console.log("splicing obj from $scope.formDataToCheck["+type+"]: "+JSON.stringify(obj));
+						delete obj.objectId; delete obj.createdAt; delete obj.updatedAt;
 						result.classes[type].remaining.splice(obj, 1);
-						console.log(type+" remaining: "+JSON.stringify(result.classes[type].remaining.length));
-						
 						result.classes[type].progress.processed++;
-//						console.log(type+": "+JSON.stringify(result.classes[type]));
-						
-//						console.log("");
+// 						console.log(type+" remaining: "+JSON.stringify(result.classes[type].remaining.length)+" "+JSON.stringify( obj )+", processed:" +result.classes[type].progress.processed);
 					},timeout);
-				}, function(response) {
+				}, errorHandler = function(response) {
 					$timeout(function(){
-//						console.log(status+" "+JSON.stringify(response));
-						
+//						console.log(status+" "+JSON.stringify(response));						
 						result.isError = true;
 						result.error.details.push( {code: JSON.stringify(response.error), message: JSON.stringify(response.code) } );
-						result.classes[type].progress.processed++;
+//						result.classes[type].progress.processed++;
+// 						console.log(JSON.stringify(response));
 					},timeout);
 				}
 			);
@@ -84,6 +83,7 @@ angular.module('ContiApp', ['localization','ngResource'])
 		$scope.isParamsExistant = true;
 		$scope.users.from = Users[params.from];
 		$scope.users.to = Users[params.to];
+    $scope.sheeted_default = false;
 	}
 	
 	$scope.formData = {
@@ -100,9 +100,9 @@ angular.module('ContiApp', ['localization','ngResource'])
 		$scope.expenseRowsFutureCounter++;
 	};
 	$scope.expenseRemoveRow = function() {
-	    $scope.expenseRows.pop( $scope.expenseIndex );
+	   $scope.expenseRows.pop( $scope.expenseIndex );
 		$scope.expenseIndex--;
-	    $scope.expenseRowsFutureCounter--;
+	   $scope.expenseRowsFutureCounter--;
 	};
   
   
@@ -135,22 +135,23 @@ angular.module('ContiApp', ['localization','ngResource'])
 // 		$scope.creditAddRow();
 // 	}
 	
-	var formData = { expense:[ {username:"giovanna",what:"banane",howmuch:10,when:"2016-11-30T23:00:00.000Z",where:"abdul"},
-	                           {username:"giovanna",what:"lamponi",howmuch:15,when:"2016-11-01T23:00:00.000Z",where:"abdul"},
-	                           {username:"giovanna",what:"pomodori",howmuch:13,when:"2016-12-01T23:00:00.000Z",where:"abdul"},
-	                           {username:"",what:"",howmuch:"",when:"",where:""} ],
-					 credit: [ {username:"giovanna",what:"cose",howmuch:30,when:"2016-01-01T23:00:00.000Z"},
-					           {username:"giovanna",what:"cose2",howmuch:20,when:"2016-01-02T23:00:00.000Z"} ]};
+	var formData = { expense:[ {username:"giovanna",what:"banane",howmuch:10,when:"2016-11-30T23:00:00.000Z",where:"abdul",sheeted:$scope.sheeted_default},
+	                           {username:"giovanna",what:"lamponi",howmuch:15,when:"2016-11-01T23:00:00.000Z",where:"abdul",sheeted:$scope.sheeted_default},
+	                           {username:"giovanna",what:"pomodori",howmuch:13,when:"2016-12-01T23:00:00.000Z",where:"abdul",sheeted:$scope.sheeted_default},
+	                           {username:"massimiliano",what:"noci",howmuch:5,when:"2016-12-10T23:00:00.000Z",where:"abdul",sheeted:$scope.sheeted_default},
+														 {username:"",what:"",howmuch:"",when:"",where:"",sheeted:$scope.sheeted_default} ],
+										credit:[ {username:"giovanna",what:"cose",howmuch:30,when:"2016-01-01T23:00:00.000Z",sheeted:$scope.sheeted_default},
+														 {username:"giovanna",what:"cose2",howmuch:20,when:"2016-01-02T23:00:00.000Z",sheeted:$scope.sheeted_default} ]};
 	$scope.formDataFake = formData;
 	
 	$scope.result = {
 		classes: {
 			expense: {
-				progress: { toProcess: 0, processed: 0 },
+        progress: { processed: 0, toProcess: 0 },
 				remaining: [],
-			}, 
+			},
 			credit: {
-				progress: { toProcess: 0, processed: 0 },
+        progress: { processed: 0, toProcess: 0 },
 				remaining: [],
 			}
 		},
@@ -164,7 +165,7 @@ angular.module('ContiApp', ['localization','ngResource'])
 	};
 	
 	// TODO in production use $scope.formData
-	/*$scope.submitObjectFake = function() {	
+	/*$scope.submitObjectFake = function() {
 		var promises = [];
 		for (var i in ParseConfig.classes) {
 			var parseClassAsString = ParseConfig.classes[i];

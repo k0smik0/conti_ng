@@ -32,11 +32,14 @@ var parseQueryString = function() {
 	return objURL;
 };
 
-var isEmptyItem = function(literalObject) {
+var isEmptyItem = function(literalObject, exceptionKey) {
 	var keys = Object.keys(literalObject);
 //	console.log(keys);
 	for (var i in keys) {
 		var key = keys[i];
+		if (key == exceptionKey) {
+			continue;
+		}
 		var value = literalObject[key];
 //		console.log(key+" "+value);		
 		if (value == null || value == undefined || value == "" || value == 0) {
