@@ -12,29 +12,32 @@ angular.module('ContiApp', ['localization','ngResource'])
 		for (var i in ParseConfig.classes) {
 			var parseClassAsString = ParseConfig.classes[i];
 			var arrayData = formData[parseClassAsString];
+//console.log("arrayData("+arrayData.length+"):"+JSON.stringify(arrayData)+" from "+parseClassAsString);
 			var resultClass = result.classes[parseClassAsString];
-      resultClass.progress.processed = 0;
-// 			console.log(parseClassAsString+": "+arrayData.length);
-      resultClass.progress.toProcess = arrayData.length;
+			resultClass.progress.processed = 0;
+			resultClass.progress.toProcess = arrayData.length;
 
 			var ParseClass = Parse.Object.extend(parseClassAsString);
-// 			console.log("ParseClass: "+console.log(ParseClass));
+console.log("ParseClass: "+parseClassAsString+" - start");
 			for (var j in arrayData) {
 				var d = arrayData[j];
 				// remove empty item from empty row in form
-				if (isEmptyItem(d, 'sheeted')) {
+				/*if (isEmptyItem(d, ['sheeted','username'])) {
 					arrayData.splice(j,1);
 					resultClass.progress.toProcess--;
-					console.log("spliced "+JSON.stringify(d)+" from "+ parseClassAsString +" - parseClassAsString: "+arrayData.length);
+//console.log("spliced empty "+JSON.stringify(d)+" from "+parseClassAsString+" - arrayData.length:"+arrayData.length);
 					continue;
-				}
+				}*/
+				console.log("saving: "+d);
 				resultClass.remaining.push(d);
-// 				console.log("pushing: "+JSON.stringify(d));
 				var parseObject = new ParseClass();
-// 				console.log("parseObject: "+console.log(parseObject));
+console.log("parseObject: "+console.log(JSON.stringify(parseObject)));
 				var p = parseObject.save(d);
 				promises.push( p );
+console.log("pushed:"+JSON.stringify(p)+" to "+parseClassAsString);
 			}
+console.log("ParseClass: "+parseClassAsString+" - end");
+console.log("");
 		} // end for
 		
 		for (var i in promises) {
@@ -57,7 +60,8 @@ angular.module('ContiApp', ['localization','ngResource'])
 						result.classes[type].progress.processed++;
 // 						console.log(type+" remaining: "+JSON.stringify(result.classes[type].remaining.length)+" "+JSON.stringify( obj )+", processed:" +result.classes[type].progress.processed);
 					},timeout);
-				}, errorHandler = function(response) {
+				}, 
+				errorHandler = function(response) {
 					$timeout(function(){
 //						console.log(status+" "+JSON.stringify(response));						
 						result.isError = true;
@@ -73,7 +77,8 @@ angular.module('ContiApp', ['localization','ngResource'])
 		exec: exec
 	};
 })
-.controller('ContiController', [ '$scope', 'ParseService', '$http', '$httpParamSerializerJQLike','$q', '$timeout', 'SubmitWithResult', function($scope,ParseService, $http,$httpParamSerializerJQLike,$q,$timeout,SubmitWithResult) {
+.controller('ContiController',['$scope','ParseService','$http','$httpParamSerializerJQLike','$q','$timeout','SubmitWithResult', 
+function($scope,ParseService,$http,$httpParamSerializerJQLike,$q,$timeout,SubmitWithResult) {
 	
 	$scope.users = { from: {}, to: {} };
 	var params = parseQueryString();
@@ -83,13 +88,10 @@ angular.module('ContiApp', ['localization','ngResource'])
 		$scope.isParamsExistant = true;
 		$scope.users.from = Users[params.from];
 		$scope.users.to = Users[params.to];
-    $scope.sheeted_default = false;
+		$scope.sheeted_default = false;
 	}
 	
-	$scope.formData = {
-		expense: [], 
-		credit: []				
-	};
+	$scope.formData = AngularFormPrepareModel;
 	
 	$scope.expenseRows = ['0'];
 	$scope.expenseIndex = 0;
@@ -128,40 +130,50 @@ angular.module('ContiApp', ['localization','ngResource'])
 			return "g";
 		}
 	};
+	$scope.result = AngularFormResultModel;
   
   // init TODO restore
-//   for (var i=0;i<2;i++) {
+//	
+	
+	// test - start
+//	for (var i=0;i<4;i++) {
 // 		$scope.expenseAddRow();
-// 		$scope.creditAddRow();
 // 	}
+//	$scope.creditAddRow();
+//	$scope.creditAddRow();
 	
-	var formData = { expense:[ {username:"giovanna",what:"banane",howmuch:10,when:"2016-11-30T23:00:00.000Z",where:"abdul",sheeted:$scope.sheeted_default},
-	                           {username:"giovanna",what:"lamponi",howmuch:15,when:"2016-11-01T23:00:00.000Z",where:"abdul",sheeted:$scope.sheeted_default},
-	                           {username:"giovanna",what:"pomodori",howmuch:13,when:"2016-12-01T23:00:00.000Z",where:"abdul",sheeted:$scope.sheeted_default},
-	                           {username:"massimiliano",what:"noci",howmuch:5,when:"2016-12-10T23:00:00.000Z",where:"abdul",sheeted:$scope.sheeted_default},
-														 {username:"",what:"",howmuch:"",when:"",where:"",sheeted:$scope.sheeted_default} ],
-										credit:[ {username:"giovanna",what:"cose",howmuch:30,when:"2016-01-01T23:00:00.000Z",sheeted:$scope.sheeted_default},
-														 {username:"giovanna",what:"cose2",howmuch:20,when:"2016-01-02T23:00:00.000Z",sheeted:$scope.sheeted_default} ]};
-	$scope.formDataFake = formData;
+//	var formDataMock = { expense:[ {username:"giovanna",what:"banane",howmuch:10,when:"01/30/2016",where:"abdul",sheeted:$scope.sheeted_default},
+//	                           {username:"giovanna",what:"lamponi",howmuch:15,when:"01/11/2016",where:"abdul",sheeted:$scope.sheeted_default},
+//	                           {username:"giovanna",what:"pomodori",howmuch:13,when:"2016-12-01",where:"abdul",sheeted:$scope.sheeted_default},
+//	                           {username:"giovanna",what:"noci",howmuch:5,when:"2016-12-10",where:"abdul",sheeted:$scope.sheeted_default},
+//	                           {username:"",what:"",howmuch:"",when:"",where:"",sheeted:$scope.sheeted_default} ],
+//						credit:[ {username:"giovanna",what:"cose",howmuch:30,when:"01-01-2016",sheeted:$scope.sheeted_default},
+//								 {username:"giovanna",what:"cose2",howmuch:20,when:"01-02-2016",sheeted:$scope.sheeted_default} ]};
+	var formDataMock = { expense:[ {username:"giovanna",what:"banane",howmuch:10,when:new Date("2016-01-30"),where:"abdul",sheeted:$scope.sheeted_default},
+		                           {username:"giovanna",what:"lamponi",howmuch:15,when:new Date("01/11/2016"),where:"abdul",sheeted:$scope.sheeted_default},
+		                           {username:"giovanna",what:"pomodori",howmuch:13,when:new Date("2016-12-01"),where:"abdul",sheeted:$scope.sheeted_default},
+		                           {username:"giovanna",what:"noci",howmuch:5,when:new Date("2016-12-10"),where:"abdul",sheeted:$scope.sheeted_default},
+		                           {username:"",what:"",howmuch:"",when:"",where:"",sheeted:$scope.sheeted_default} ],
+							credit:[ {username:"giovanna",what:"cose",howmuch:30,when:new Date("01-01-2016"),sheeted:$scope.sheeted_default},
+									 {username:"giovanna",what:"cose2",howmuch:20,when:new Date("01-02-2016"),sheeted:$scope.sheeted_default} ]};
+//	$scope.formData = formDataMock;
+	// test - end	
+
 	
-	$scope.result = {
-		classes: {
-			expense: {
-        progress: { processed: 0, toProcess: 0 },
-				remaining: [],
-			},
-			credit: {
-        progress: { processed: 0, toProcess: 0 },
-				remaining: [],
-			}
-		},
-		error: { isError: false, details: [{code: "", message: ""}] }
-	};
 	
-	$scope.submitUsingFactory = function() {
+	$scope.toParse = function() {
+		console.log(JSON.stringify($scope.formData));
 		// TODO in production use $scope.formData
-		SubmitWithResult.exec($scope.formDataFake,$scope.result);
-//		$scope.divResultTarget.focus();
+		removeEmptyBeforeSubmit($scope.formData);
+		
+		$scope.submitted = true;
+		
+		SubmitWithResult.exec($scope.formData,$scope.result);
+		
+		setTimeout(function() {
+			var resultPosition = jQuery('#result').position();
+			$(window).scrollTop(resultPosition.top+50);
+		},500);
 	};
 	
 	// TODO in production use $scope.formData
@@ -239,7 +251,7 @@ angular.module('ContiApp', ['localization','ngResource'])
 				e.preventDefault();
 				
 				['input', 'textarea', 'select'].forEach(function(e){
-						element.find(e).removeClass('ng-pristine');
+					element.find(e).removeClass('ng-pristine');
 				});
 				
 				// Get the form object.
@@ -257,11 +269,14 @@ angular.module('ContiApp', ['localization','ngResource'])
 					formElement.$setDirty();
 				});
 				scope.$apply();
-					
+				
+				console.log(attributes);
+				
 				// Do not continue if the form is invalid.
 				if ( form.$invalid ) {
 					// original, not working
 					// $element.find('.ng-invalid').first().focus();
+					
 					// fix - k0smik0
 					var elemToFocus = null;
 					angular.forEach(document.querySelectorAll('input.ng-invalid'), function(elem) {
@@ -276,6 +291,8 @@ angular.module('ContiApp', ['localization','ngResource'])
 						
 					return false;
 				}
+				
+				console.log(attributes);
 					
 				// From this point and below, we can assume that the form is valid.
 				scope.$eval( attributes.customSubmit );
@@ -300,7 +317,7 @@ angular.module('ContiApp', ['localization','ngResource'])
     return {
         restrict: 'A',
         link: function($scope, $element, $attr) {
-            if ($attr.ngShow){
+            if ($attr.ngShow) {
                 $scope.$watch($attr.ngShow, function(newValue){
                     if(newValue){
                         $timeout(function(){
@@ -328,4 +345,50 @@ function getLanguage() {
 	var lang = window.navigator.language || window.navigator.userLanguage;
 	console.log(lang);
 	return lang;
+}
+function removeEmptyBeforeSubmit(formData,keys) {
+//	remove empty item from empty row in form
+	var classes = ["credit","expense"];
+	for (var ci in classes) {
+		var classDataArray = formData[ classes[ci] ];
+		for (var cdi in classDataArray) {
+			var item = classDataArray[cdi];
+			if (isEmptyItem(item, ['sheeted','username'])) {
+				classDataArray.splice(cdi,1);
+//				resultClass.progress.toProcess--;
+//		console.log("spliced empty "+JSON.stringify(item)+" from "+classes[ci]);				
+			}
+		}
+	}
+	
+}
+
+var AngularFormPrepareModel = {
+	expense: [], 
+	credit: []				
+};
+var AngularFormResultModel = {
+	classes : {
+		expense : {
+			progress : {
+				processed : 0,
+				toProcess : 0
+			},
+			remaining : [],
+		},
+		credit : {
+			progress : {
+				processed : 0,
+				toProcess : 0
+			},
+			remaining : [],
+		}
+	},
+	error : {
+		isError : false,
+		details : [ {
+			code : "",
+			message : ""
+		} ]
+	}
 }

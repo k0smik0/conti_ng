@@ -61,8 +61,23 @@
 		"description": ""
 	},
 	{
+		"key": "button_submit",
+		"value": "Submit",
+		"description": ""
+	},
+	{
 		"key": "label_remove_empty_rows",
 		"value": "If there are empty rows, remove them",
 		"description": ""
+	},
+	{
+		"key": "help_message_1",
+		"value": "url must be end with '?from=YOUR_USERNAME&to=PEER_USERNAME'",
+		"description":""
+	},
+	{
+		"key": "help_message_2",
+		"value": "example: '?from=giovanna&to=massimiliano'",
+		"description":""
 	}
 ]

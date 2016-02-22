@@ -39,7 +39,11 @@ angular.module('localization', [])
                     // set the flag that the resource are loaded
                     localize.resourceFileLoaded = true;
                     // broadcast that the file has been loaded
-                    $rootScope.$broadcast('localizeResourcesUpdated');
+//                    try {
+                    	$rootScope.$broadcast('localizeResourcesUpdated');
+                    /*} catch(e) {
+                    	console.log(e);
+                    }*/
                 },
 
                 // allows setting of language on the fly
@@ -113,12 +117,17 @@ angular.module('localization', [])
                     if (localize.resourceFileLoaded) {
                         // use the filter service to only return those entries which match the KEY
                         // and only take the first result
-                        var entry = $filter('filter')(localize.dictionary, function(element) {
-                                return element.key === KEY;
-                            }
-                        )[0];
-                        // set the result
-                        result = entry.value ? entry.value : KEY;
+                    	/*if (entry==undefined) {
+                    		result = "no result";
+                    	} else {*/
+	                        var entry = $filter('filter')(localize.dictionary, function(element) {
+	                                return element.key === KEY;
+	                            }
+	                        )[0];
+	                        // set the result
+//	                        console.log("entry: "+entry);
+	                    	result = entry.value ? entry.value : KEY;
+//                    	}
                     }
                     // return the value to the call
                     return result;
@@ -169,10 +178,12 @@ angular.module('localization', [])
 
             link:function (scope, elm, attrs) {
                 scope.$on('localizeResourcesUpdated', function() {
+//                	console.log("elm: "+elm);
                     i18nDirective.updateText(elm, attrs.i18n, angular.isDefined(attrs.i18nHtml));
                 });
 
                 attrs.$observe('i18n', function (value) {
+//                	console.log("elm: "+elm);
                     i18nDirective.updateText(elm, attrs.i18n, angular.isDefined(attrs.i18nHtml));
                 });
             }

@@ -8,6 +8,8 @@
     	<link href="css/foundation.css" rel="stylesheet">    	
 		<link href="css/main.css" rel="stylesheet">
 		
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+		
 		<script src="//www.parsecdn.com/js/parse-1.6.12.min.js"></script>
 		<script type="text/javascript" src="js/script.js"></script>
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
@@ -27,10 +29,11 @@
 	    	</div>
 	    	<div id="error_no_params" ng-show="!isParamsExistant" class="float-left clear-both" style="margin:2em;">
 	    		<div style="background: #cc0000;">Sorry, no right params</div>
-	    		<div style="color:#cc0000">Url must be end with ?from=YOUR_USERNAME&to=PEER_USERNAME</div>
-	    		<div style="color:#cc0000">example: ?from=giovanna&to=massimiliano</div>
+	    		<div style="color:#cc0000"><span data-i18n="help_message_1"></span></div>
+	    		<div style="color:#cc0000"><span data-i18n="help_message_2"></span></div>
 	    	</div>
-		    <form id="contiForm" name="contiForm" data-custom-submit="submit()" ng-show="isParamsExistant" novalidate class="css-form float-left clear-both">
+		    <form id="contiForm" name="contiForm" data-custom-submit="toParse()" ng-show="isParamsExistant" novalidate class="css-form float-left clear-both">
+		    	<div class="clear-both float-left">
 				<div style="background: #cabfee; padding-left: 3em">{{users.from.name}}: <span data-i18n="subtitle_expense"></span></div>
 				<table id="table_expense">
 					<thead>
@@ -42,9 +45,9 @@
 						<tr ng-repeat="r in expenseRows">
 							<td>
 								<ng-form name="expenseInnerFormWhat{{r}}">
-									<input type="text" name="what" ng-model="formData.expense[r].what" ng-minlength="4" required/>
+									<input id="expenseInnerForm{{r}}_what" type="text" name="what" ng-model="formData.expense[r].what" ng-minlength="4" required/>
 									<div style="color:red" ng-show="expenseInnerFormWhat{{r}}.what.$touched && expenseInnerFormWhat{{r}}.what.$invalid">
-										<div ng-show="expenseInnerFormWhat{{r}}.what.$error.required">
+										<div ng-show="expenseInnerFormWhat{{r}}.what.$error.required || submitted">
 											<span data-i18n="error_required"></span>
 										</div>
 									</div>
@@ -58,7 +61,7 @@
 							</td>
 							<td>
 								<ng-form name="expenseInnerFormHowmuch{{r}}">
-									<input type="number" name="howmuch" ng-model="formData.expense[r].howmuch" min="0.01" required/>
+									<input id="expenseInnerForm{{r}}_howmuch" type="number" name="howmuch" ng-model="formData.expense[r].howmuch" min="0.01" required/>
 									<div style="color:red" ng-show="expenseInnerFormHowmuch{{r}}.howmuch.$touched && expenseInnerFormHowmuch{{r}}.howmuch.$invalid">
 										<div ng-show="expenseInnerFormHowmuch{{r}}.howmuch.$error.required">
 											<span data-i18n="error_required"></span>
@@ -74,7 +77,7 @@
 							</td>
 							<td>
 								<ng-form name="expenseInnerFormWhen{{r}}">
-									<input type="date" name="when" ng-model="formData.expense[r].when" min="2016-01-01" max="2016-12-31" required/>
+									<input id="expenseInnerForm{{r}}_when" type="date" name="when" ng-model="formData.expense[r].when" min="2016-01-01" max="2016-12-31" required/>
 									<div style="color:red" ng-show="expenseInnerFormWhen{{r}}.when.$touched && expenseInnerFormWhen{{r}}.when.$invalid">
 										<div ng-show="expenseInnerFormWhen{{r}}.when.$error.required">
 											<span data-i18n="error_required"></span>
@@ -90,7 +93,7 @@
 							</td>
 							<td>
 								<ng-form name="expenseInnerFormWhere{{r}}">
-								<input type="text" name="where" ng-model="formData.expense[r].where" ng-minlength="4" required/>
+								<input id="expenseInnerForm{{r}}_where" type="text" name="where" ng-model="formData.expense[r].where" ng-minlength="4" required/>
 								<div style="color:red" ng-show="expenseInnerFormWhere{{r}}.where.$touched && expenseInnerFormWhere{{r}}.where.$invalid">
 									<div ng-show="expenseInnerFormWhere{{r}}.where.$error.required">
 										<span data-i18n="error_required"></span>
@@ -104,17 +107,17 @@
 								<div style="color:white" ng-show="!expenseInnerFormWhere{{r}}.where.$touched">-</div>
 								</ng-form>
 							</td>
-							<td style="display: none">
-								<input type="text" name="username" ng-model="formData.expense[r].username" ng-init="formData.expense[r].username=users.from.username" value="{{users.from.username}}"/>
+							<td style="display: block">
+								<input id="expenseInnerForm{{r}}_username" type="text" name="username" ng-model="formData.expense[r].username" ng-init="formData.expense[r].username=users.from.username" value="{{users.from.username}}"/>
 							</td>
-                     <td style="display: none">
-								<input type="text" name="sheeted" ng-model="formData.expense[r].sheeted" ng-init="formData.expense[r].sheeted=sheeted_default" value="{{sheeted_default}}"/>
+                     		<td style="display: block">
+								<input id="expenseInnerForm{{r}}_sheeted" type="text" name="sheeted" ng-model="formData.expense[r].sheeted" ng-init="formData.expense[r].sheeted=sheeted_default" value="{{sheeted_default}}"/>
 							</td>
 
 						</tr>					
 					</tbody>
 				</table>
-				<a href="#" class="button" ng-click="expenseAddRow()"><span data-i18n="button_add_expense_row"></span></a>
+				<a href="#" id="button__expense_add_row" class="button" ng-click="expenseAddRow()"><span data-i18n="button_add_expense_row"></span></a>
 				<a href="#" class="button" ng-click="expenseRemoveRow()"><span data-i18n="button_remove_expense_row"></span></a>
 				
 				<div style="background: #cabfee; padding-left: 3em; width: 560px">{{users.from.name}}: <span data-i18n="subtitle_credit"></span>{{users.to.name}}</div>
@@ -128,7 +131,7 @@
 						<tr ng-repeat="r in creditRows">
 							<td>
 								<ng-form name="creditInnerFormWhat{{r}}">
-									<input type="text" name="what" ng-model="formData.credit[r].what" ng-minlength="4" required/>
+									<input id="creditInnerForm{{r}}_what" type="text" name="what" ng-model="formData.credit[r].what" ng-minlength="4" required/>
 									<div style="color:red" ng-show="creditInnerFormWhat{{r}}.what.$touched && creditInnerFormWhat{{r}}.what.$invalid">
 										<div ng-show="creditInnerFormWhat{{r}}.what.$error.required">
 											<span data-i18n="error_required"></span>
@@ -144,7 +147,7 @@
 							</td>
 							<td>
 								<ng-form name="creditInnerFormHowmuch{{r}}">
-									<input type="number" name="howmuch" ng-model="formData.credit[r].howmuch" min="0.01" required/>
+									<input id="creditInnerForm{{r}}_howmuch" type="number" name="howmuch" ng-model="formData.credit[r].howmuch" min="0.01" required/>
 									<div style="color:red" ng-show="creditInnerFormHowmuch{{r}}.howmuch.$touched && creditInnerFormHowmuch{{r}}.howmuch.$invalid">
 										<div ng-show="creditInnerFormHowmuch{{r}}.howmuch.$error.required">
 											<span data-i18n="error_required"></span>
@@ -160,7 +163,7 @@
 							</td>
 							<td>
 								<ng-form name="creditInnerFormWhen{{r}}">
-									<input type="date" name="when" ng-model="formData.credit[r].when" min="2016-01-01" max="2016-12-31" required/>
+									<input id="creditInnerForm{{r}}_when" type="date" name="when" ng-model="formData.credit[r].when" min="2016-01-01" max="2016-12-31" required/>
 									<div style="color:red" ng-show="creditInnerFormWhen{{r}}.when.$touched && creditInnerFormWhen{{r}}.when.$invalid">
 										<div ng-show="creditInnerFormWhen{{r}}.when.$error.required">
 											<span data-i18n="error_required"></span>
@@ -174,26 +177,29 @@
 									<div style="color:white" ng-show="!creditInnerFormWhen{{r}}.when.$touched">-</div>
 								</ng-form>
 							</td>
-							<td style="display: none">
-								<input type="text" name="username" ng-model="formData.credit[r].username" ng-init="formData.credit[r].username=users.from.username" value="{{users.from.username}}"/>
+							<td style="display: block">
+								<input id="creditInnerForm{{r}}_username" type="text" name="username" ng-model="formData.credit[r].username" ng-init="formData.credit[r].username=users.from.username" value="{{users.from.username}}"/>
 							</td>
-                     <td style="display: none">
-								<input type="text" name="sheeted" ng-model="formData.credit[r].sheeted" ng-init="formData.credit[r].sheeted=sheeted_default" value="{{sheeted_default}}"/>
+                     		<td style="display: block">
+								<input id="creditInnerForm{{r}}_sheeted" type="text" name="sheeted" ng-model="formData.credit[r].sheeted" ng-init="formData.credit[r].sheeted=sheeted_default" value="{{sheeted_default}}"/>
 							</td>
-
 						</tr>
 					</tbody>
 				</table>    
-				<a href="#" class="button" ng-click="creditAddRow()"><span data-i18n="button_add_credit_row"></span></a>
+				<a href="#" id="button__credit_add_row" class="button" ng-click="creditAddRow()"><span data-i18n="button_add_credit_row"></span></a>
 				<a href="#" class="button" ng-click="creditRemoveRow()"><span data-i18n="button_remove_credit_row"></span></a>
 				
+				</div>
 				<!-- <div style="background: #cabfee; margin-top: 0em; padding-left: 1em; width: 19em"><span data-i18n="label_remove_empty_rows"></span></div> -->
 				
 				
-				<button type="submit" style="background-color: #cc0000; display: none">Submit</button>
+				<!-- <button type="submit" style="background-color: #cc0000; display: none">Submit</button> -->
+				
+				<button type="submit"  class="float-left clear-both" style="background-color: #cc0000; margin-top: 1em"  ng-show="isParamsExistant" ng-disable="contiForm.$invalid"><span data-i18n="button_submit"></span></button>
 			</form>
+			<!-- ng-click="submitUsingFactory();" -->
+			<!-- ng-click="toParse()" -->
 			
-			<button type="submit" class="float-left clear-both" style="background-color: #cc0000; margin-top: 1em" ng-click="submitUsingFactory(); divResultTarget.focus();">Submit</button>
 			
 			<div id="result" style="float:left;clear: both" ng-model="divResultTarget">
 				<div ng-repeat="(key,value) in result.classes" class="float-left clear-both">

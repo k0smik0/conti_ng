@@ -60,8 +60,23 @@
 		"description": ""
 	},
 	{
+		"key": "button_submit",
+		"value": "Invia",
+		"description": ""
+	},
+	{
 		"key": "label_remove_empty_rows",
 		"value": "Se ci sono righe vuote, eliminale",
 		"description": ""
+	},
+	{
+		"key": "help_div_1",
+		"value": "l'url deve terminare con '?from=YOUR_USERNAME&to=PEER_USERNAME'",
+		"description":""
+	},
+	{
+		"key": "help_message_2",
+		"value": "esempio: '?from=giovanna&to=massimiliano'",
+		"description":""
 	}
 ]
