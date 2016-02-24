@@ -18,9 +18,9 @@ angular.module('ContiApp', ['localization','ngResource'])
 			resultClass.progress.toProcess = arrayData.length;
 
 			var ParseClass = Parse.Object.extend(parseClassAsString);
-console.log("ParseClass: "+parseClassAsString+" - start");
+//console.log("ParseClass: "+parseClassAsString+" - start");
 			for (var j in arrayData) {
-				var d = arrayData[j];
+				var item = arrayData[j];
 				// remove empty item from empty row in form
 				/*if (isEmptyItem(d, ['sheeted','username'])) {
 					arrayData.splice(j,1);
@@ -28,16 +28,30 @@ console.log("ParseClass: "+parseClassAsString+" - start");
 //console.log("spliced empty "+JSON.stringify(d)+" from "+parseClassAsString+" - arrayData.length:"+arrayData.length);
 					continue;
 				}*/
-				console.log("saving: "+d);
-				resultClass.remaining.push(d);
+				console.log("saving: "+item);
+				resultClass.remaining.push(item);
 				var parseObject = new ParseClass();
-console.log("parseObject: "+console.log(JSON.stringify(parseObject)));
-				var p = parseObject.save(d);
+//console.log("parseObject: "+console.log(JSON.stringify(parseObject)));
+				// TODO restore two below
+				var pobj = {};
+				for (var key in item) {
+					var value = item[key];
+					if (value instanceof Date) {
+						var epoch = getEpochTime(value);
+						console.log(epoch);
+						pobj[key] = epoch;
+					} else {
+//						console.log("date? "+(value instanceof Date)+" - "+value);
+						pobj[key] = value;
+					}
+				}
+				console.log("converted to:"+JSON.stringify(pobj));
+				var p = parseObject.save(pobj);
 				promises.push( p );
 console.log("pushed:"+JSON.stringify(p)+" to "+parseClassAsString);
 			}
-console.log("ParseClass: "+parseClassAsString+" - end");
-console.log("");
+//console.log("ParseClass: "+parseClassAsString+" - end");
+//console.log("");
 		} // end for
 		
 		for (var i in promises) {
@@ -103,7 +117,7 @@ function($scope,ParseService,$http,$httpParamSerializerJQLike,$q,$timeout,Submit
 	};
 	$scope.expenseRemoveRow = function() {
 	   $scope.expenseRows.pop( $scope.expenseIndex );
-		$scope.expenseIndex--;
+	   $scope.expenseIndex--;
 	   $scope.expenseRowsFutureCounter--;
 	};
   
@@ -158,16 +172,16 @@ function($scope,ParseService,$http,$httpParamSerializerJQLike,$q,$timeout,Submit
 									 {username:"giovanna",what:"cose2",howmuch:20,when:new Date("01-02-2016"),sheeted:$scope.sheeted_default} ]};
 //	$scope.formData = formDataMock;
 	// test - end	
-
-	
 	
 	$scope.toParse = function() {
 		console.log(JSON.stringify($scope.formData));
-		// TODO in production use $scope.formData
-		removeEmptyBeforeSubmit($scope.formData);
+		normalizeBeforeSubmit($scope.formData);
 		
 		$scope.submitted = true;
 		
+		console.log(JSON.stringify( $scope.formData ));
+		// reset isError
+		$scope.result.isError = false;
 		SubmitWithResult.exec($scope.formData,$scope.result);
 		
 		setTimeout(function() {
@@ -270,7 +284,7 @@ function($scope,ParseService,$http,$httpParamSerializerJQLike,$q,$timeout,Submit
 				});
 				scope.$apply();
 				
-				console.log(attributes);
+//				console.log(attributes);
 				
 				// Do not continue if the form is invalid.
 				if ( form.$invalid ) {
@@ -287,12 +301,14 @@ function($scope,ParseService,$http,$httpParamSerializerJQLike,$q,$timeout,Submit
 							}
 						}
 					});
-					elemToFocus.focus();
+					if (elemToFocus!=null) {
+						elemToFocus.focus();
+					}
 						
 					return false;
 				}
 				
-				console.log(attributes);
+//				console.log(attributes);
 					
 				// From this point and below, we can assume that the form is valid.
 				scope.$eval( attributes.customSubmit );
@@ -324,7 +340,7 @@ function($scope,ParseService,$http,$httpParamSerializerJQLike,$q,$timeout,Submit
                             $element.focus();
                         }, 0);
                     }
-                })      
+                });     
             }
             if ($attr.ngHide){
                 $scope.$watch($attr.ngHide, function(newValue){
@@ -333,34 +349,43 @@ function($scope,ParseService,$http,$httpParamSerializerJQLike,$q,$timeout,Submit
                             $element.focus();
                         }, 0);
                     }
-                })      
+                });      
             }
-
         }
     };
-})
-;
+});
 
 function getLanguage() {
 	var lang = window.navigator.language || window.navigator.userLanguage;
 	console.log(lang);
 	return lang;
 }
-function removeEmptyBeforeSubmit(formData,keys) {
+function normalizeBeforeSubmit(formData,keys) {
 //	remove empty item from empty row in form
 	var classes = ["credit","expense"];
 	for (var ci in classes) {
 		var classDataArray = formData[ classes[ci] ];
 		for (var cdi in classDataArray) {
 			var item = classDataArray[cdi];
-			if (isEmptyItem(item, ['sheeted','username'])) {
-				classDataArray.splice(cdi,1);
-//				resultClass.progress.toProcess--;
-//		console.log("spliced empty "+JSON.stringify(item)+" from "+classes[ci]);				
+			var r = removeEmptyBeforeSubmit(classDataArray, item);
+			if (r) {
+				continue;
 			}
+			
+//			var epoch = getEpochTime(item.when);
+//			console.log(epoch);
+//			item.when = getEpochTime(epoch);
 		}
 	}
-	
+}
+function removeEmptyBeforeSubmit(classDataArray, item) {
+	if (isEmptyItem(item, ['sheeted','username'])) {
+		classDataArray.splice(classDataArray,1);
+		return true;
+	}
+}
+function getEpochTime(dateAsString) {
+	return new Date(dateAsString).getTime();
 }
 
 var AngularFormPrepareModel = {
@@ -376,7 +401,7 @@ var AngularFormResultModel = {
 			},
 			remaining : [],
 		},
-		credit : {
+		credit: {
 			progress : {
 				processed : 0,
 				toProcess : 0
@@ -385,10 +410,10 @@ var AngularFormResultModel = {
 		}
 	},
 	error : {
-		isError : false,
-		details : [ {
+		isError: false,
+		details: [{
 			code : "",
 			message : ""
-		} ]
+		}]
 	}
 }
