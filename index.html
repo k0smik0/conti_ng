@@ -8,12 +8,18 @@
     	<link href="css/foundation.css" rel="stylesheet">    	
 		<link href="css/main.css" rel="stylesheet">
 		
+		<script type="text/javascript" src="js/config.js"></script>
+		
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 		
 		<script src="//www.parsecdn.com/js/parse-1.6.12.min.js"></script>
+		
+		<script type="text/javascript" src="https://apis.google.com/js/client.js?onload=GoogleApiService.init"></script>
 		<script type="text/javascript" src="js/script.js"></script>
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
 		<!--localization features come from https://github.com/lavinjj/angularjs-localizationservice-->
+		<script type="text/javascript" src="js/ng/services/ParseService.js"></script>
+		<script type="text/javascript" src="js/ng/services/GoogleApiService.js"></script>
 		<script type="text/javascript" src="js/ng/modules/localize/LocalizeService.js"></script>
 		<script type="text/javascript" src="js/ng/Controller.js"></script>
 		<script type="text/javascript" src="js/ng/modules/localize/LocalizeController.js"></script>
@@ -42,7 +48,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="r in expenseRows">
+						<tr ng-repeat="r in expenseRows" class="tableRowWithMargin">
 							<td>
 								<ng-form name="expenseInnerFormWhat{{r}}">
 									<input id="expenseInnerForm{{r}}_what" type="text" name="what" ng-model="formData.expense[r].what" ng-minlength="4" required/>
@@ -56,7 +62,7 @@
 											<span data-i18n="error_text_min_4_chars"></span>
 										</div>										
 									</div>
-									<div style="color:white" ng-show="!expenseInnerFormWhat{{r}}.what.$touched">-</div>
+									<div class="separator" ng-show="!expenseInnerFormWhat{{r}}.what.$touched">-</div>
 								</ng-form>
 							</td>
 							<td>
@@ -72,7 +78,7 @@
 											<span data-i18n="error_number_min_1_cent"></span>
 										</div>
 									</div>
-									<div style="color:white" ng-show="!expenseInnerFormHowmuch{{r}}.howmuch.$touched">-</div>
+									<div class="separator" ng-show="!expenseInnerFormHowmuch{{r}}.howmuch.$touched">-</div>
 								</ng-form>
 							</td>
 							<td>
@@ -88,7 +94,7 @@
 											<span data-i18n="error_date_interval"></span>
 										</div>
 									</div>
-									<div style="color:white" ng-show="!expenseInnerFormWhen{{r}}.when.$touched">-</div>
+									<div class="separator" ng-show="!expenseInnerFormWhen{{r}}.when.$touched">-</div>
 								</ng-form>
 							</td>
 							<td>
@@ -104,17 +110,16 @@
 										<span data-i18n="error_text_min_4_chars"></span>
 									</div>										
 								</div>
-								<div style="color:white" ng-show="!expenseInnerFormWhere{{r}}.where.$touched">-</div>
+								<div class="separator" ng-show="!expenseInnerFormWhere{{r}}.where.$touched">-</div>
 								</ng-form>
 							</td>
-							<td style="display: block">
+							<td class="toHidden">
 								<input id="expenseInnerForm{{r}}_username" type="text" name="username" ng-model="formData.expense[r].username" ng-init="formData.expense[r].username=users.from.username" value="{{users.from.username}}"/>
 							</td>
-                     		<td style="display: block">
+                     		<td class="toHidden">
 								<input id="expenseInnerForm{{r}}_sheeted" type="text" name="sheeted" ng-model="formData.expense[r].sheeted" ng-init="formData.expense[r].sheeted=sheeted_default" value="{{sheeted_default}}"/>
 							</td>
-
-						</tr>					
+						</tr>
 					</tbody>
 				</table>
 				<a href="#" id="button__expense_add_row" class="button" ng-click="expenseAddRow()"><span data-i18n="button_add_expense_row"></span></a>
@@ -128,7 +133,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="r in creditRows">
+						<tr ng-repeat="r in creditRows" class="tableRowWithMargin">
 							<td>
 								<ng-form name="creditInnerFormWhat{{r}}">
 									<input id="creditInnerForm{{r}}_what" type="text" name="what" ng-model="formData.credit[r].what" ng-minlength="4" required/>
@@ -142,7 +147,7 @@
 											<span data-i18n="error_text_min_4_chars"></span>
 										</div>										
 									</div>
-									<div style="color:white" ng-show="!creditInnerFormWhat{{r}}.what.$touched">-</div>
+									<div class="separator" ng-show="!creditInnerFormWhat{{r}}.what.$touched">-</div>
 								</ng-form>
 							</td>
 							<td>
@@ -158,7 +163,7 @@
 											<span data-i18n="error_number_min_1_cent"></span>
 										</div>
 									</div>
-									<div style="color:white" ng-show="!creditInnerFormHowmuch{{r}}.howmuch.$touched">-</div>
+									<div class="separator" ng-show="!creditInnerFormHowmuch{{r}}.howmuch.$touched">-</div>
 								</ng-form>
 							</td>
 							<td>
@@ -174,13 +179,13 @@
 											<span data-i18n="error_date_interval"></span>
 										</div>
 									</div>								
-									<div style="color:white" ng-show="!creditInnerFormWhen{{r}}.when.$touched">-</div>
+									<div class="separator" ng-show="!creditInnerFormWhen{{r}}.when.$touched">-</div>
 								</ng-form>
 							</td>
-							<td style="display: block">
+							<td class="toHidden">
 								<input id="creditInnerForm{{r}}_username" type="text" name="username" ng-model="formData.credit[r].username" ng-init="formData.credit[r].username=users.from.username" value="{{users.from.username}}"/>
 							</td>
-                     		<td style="display: block">
+                     		<td class="toHidden">
 								<input id="creditInnerForm{{r}}_sheeted" type="text" name="sheeted" ng-model="formData.credit[r].sheeted" ng-init="formData.credit[r].sheeted=sheeted_default" value="{{sheeted_default}}"/>
 							</td>
 						</tr>
@@ -195,7 +200,7 @@
 				
 				<!-- <button type="submit" style="background-color: #cc0000; display: none">Submit</button> -->
 				
-				<button type="submit"  class="float-left clear-both" style="background-color: #cc0000; margin-top: 1em"  ng-show="isParamsExistant" ng-disable="contiForm.$invalid"><span data-i18n="button_submit"></span></button>
+				<button type="submit"  class="float-left clear-both" style="background-color: #cc0000; margin-top: 1em" ng-show="isParamsExistant" ng-disable="contiForm.$invalid"><span data-i18n="button_submit"></span></button>
 			</form>
 			<!-- ng-click="submitUsingFactory();" -->
 			<!-- ng-click="toParse()" -->
@@ -213,6 +218,15 @@
 					</div>
 				</div>
 			</div>
+			<div id="authorize-div" style="display: none">
+				<span>Authorize access to Google Apps Script Execution API</span>
+				<!--Button for the user to click to initiate auth sequence -->
+				<button id="authorize-button" onclick="GoogleApiService.handleAuthClick(event)">Authorize</button>
+				<script type="text/javascript">
+					
+				</script>
+			</div>
+			<pre id="output"></pre>
 		</div>
 	</body>
 </html>

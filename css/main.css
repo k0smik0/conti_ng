@@ -23,3 +23,27 @@ body {
 .background-yellow-red {
 	background-color: #FFDEDE;
 }
+
+.toHidden {
+	display: none;
+}
+table {
+	border: 0px;
+	background: unset;
+	/* border-collapse:collapse; */
+}
+table.th {
+	background: #efefef;
+	background-color: #efefef;
+}
+tr.tableRowWithMargin > td {
+	padding-bottom:10px;
+	background-color: #efefef;
+} 
+/* table.td {
+	padding: 28px;
+} */
+
+.separator {
+	display: none;
+}

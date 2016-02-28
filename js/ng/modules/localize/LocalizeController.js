@@ -1,9 +1,5 @@
 /**
- * Created with JetBrains WebStorm.
  * User: jim.lavin
- * Date: 12/8/12
- * Time: 12:19 PM
- * To change this template use File | Settings | File Templates.
  */
 
 'use strict';

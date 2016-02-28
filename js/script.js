@@ -1,22 +1,3 @@
-var Users = {
-	giovanna: {
-		name: "Giovanna",
-		username: "giovanna"
-	},
-	massimiliano: {
-		name: "Massimiliano",
-		username: "massimiliano"
-	}
-};
-
-var ParseConfig = {
-	"application_id": "MZQdm0ZZ0EaTYYE8GnuWlqWu2fzgwscDVtIU5cWs",
-	"rest_api_key": "XtI77oOBItZjMtCu0lTKVyPHe8vw0gbgGcgTpiVD",
-	"javascript_key": "v1MQE4NZyJWkqe29V93yR6MYgzssdfqpuDFdJ7xT",
-	classes: ['expense','credit']
-};
-Parse.initialize(ParseConfig.application_id, ParseConfig.javascript_key);
-
 Object.size = function(obj) {
     var size = 0, key = 0;
     for (key in obj) {
@@ -34,20 +15,8 @@ var parseQueryString = function() {
 
 var isEmptyItem = function(literalObject, exceptionKeysArrays) {
 	var keys = Object.keys(literalObject);
-//	console.log(JSON.stringify(literalObject));
-//	console.log("keys to check: "+keys);
-//console.log(exceptionKeysArrays);
 	for (var i in keys) {
 		var key = keys[i];
-//		if (key == exceptionKey) {
-//			continue;
-//		}
-//		for (var ek in exceptionKeysArrays) {
-//		console.log( JSON.stringify(literalObject)+" "+key+" "+exceptionKeysArrays.indexOf(key) );
-//		if ( exceptionKeysArrays.indexOf(key)>-1 ) { // found exceptive
-//			console.log("skipping "+JSON.stringify(literalObject));
-//			continue;
-//		}
 		if (keys.length<=exceptionKeysArrays.length) {
 			return true;
 		}
@@ -65,21 +34,26 @@ var isEmptyItem = function(literalObject, exceptionKeysArrays) {
 //			console.log("continue loop due: "+key);
 			continue;
 		}
-//		console.log("so..");
 		
 		var value = literalObject[key];
-//		console.log(key+" "+value);	
 		if (value == null || value == undefined || value == "" /*|| value == 0*/) {
-//			console.log(JSON.stringify(literalObject)+" found key:"+key+" as:"+value);
 			return true;
 		}
 	}
 	return false;
 };
 
+function getLanguage() {
+	var lang = window.navigator.language || window.navigator.userLanguage;
+	console.log(lang);
+	return lang;
+}
 
+function getEpochTime(dateAsString) {
+	return new Date(dateAsString).getTime();
+}
 
-var Test = {
+var ConsoleTest = {
 	one: function() {
 		var formDataMock = { 
 				expense:[ 

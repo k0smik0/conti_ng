@@ -5,19 +5,13 @@ angular.module('ContiApp', ['localization','ngResource'])
 	Parse.initialize(app_id, js_key);
 //	console.log("parse initialized");
 }])
-.service('GoogleApiServiceInit',['$q',function($q){
-	setTimeout(function() {
-		var promise = GoogleApiService.init($q.defer(), GoogleApiServiceClient.client_id, GoogleApiServiceClient.scopes);
-		promise.then(function(s) {
-//			console.log(s);
-//			console.log( GoogleApiServiceClient.authorized );
-		}, function(s) {
-			console.log(s);
-		});
-	}, 500);
+.service('GoogleApiServiceInit',[function(){
+//	var client_id = GoogleApiParams.client_id;
+	console.log("here");
+//	eval("https://apis.google.com/js/client.js?onload=GoogleApiParams.initGoogleApiClient");
 }])
-.factory('ParseService',function($q,$timeout){	
-	/*var timeout = 2000;
+.factory('ParseService',function($q,$timeout) {	
+	var timeout = 2000;
 	var exec = function(formData,result) {
 // 		console.log("formData: "+JSON.stringify(formData));
 		var promises = [];
@@ -34,12 +28,12 @@ angular.module('ContiApp', ['localization','ngResource'])
 			for (var j in arrayData) {
 				var item = arrayData[j];
 				// remove empty item from empty row in form
-//				if (isEmptyItem(d, ['sheeted','username'])) {
-//					arrayData.splice(j,1);
-//					resultClass.progress.toProcess--;
-////console.log("spliced empty "+JSON.stringify(d)+" from "+parseClassAsString+" - arrayData.length:"+arrayData.length);
-//					continue;
-//				}
+				/*if (isEmptyItem(d, ['sheeted','username'])) {
+					arrayData.splice(j,1);
+					resultClass.progress.toProcess--;
+//console.log("spliced empty "+JSON.stringify(d)+" from "+parseClassAsString+" - arrayData.length:"+arrayData.length);
+					continue;
+				}*/
 				console.log("saving: "+item);
 				resultClass.remaining.push(item);
 				var parseObject = new ParseClass();
@@ -101,25 +95,10 @@ console.log("pushed:"+JSON.stringify(p)+" to "+parseClassAsString);
 	};	
 	return {
 		exec: exec
-	};*/
-	/*var psi = new ParseServiceImpl();
-	console.log(psi);
-	console.log(typeof psi.exec);
-	return {
-		exec: psi.exec
-	};*/
-	return new ParseServiceImpl();
+	};
 })
-.controller('ContiController',['$scope',
-                               'ParseServiceInit',
-//                               '$http','$httpParamSerializerJQLike',
-                               '$q','$timeout','ParseService','GoogleApiServiceInit', 
-function($scope,
-		ParseServiceInit,
-//		$http,$httpParamSerializerJQLike,
-		$q,$timeout,ParseService) {
-	
-//	console.log(ParseService);
+.controller('ContiController',['$scope','ParseServiceInit','$http','$httpParamSerializerJQLike','$q','$timeout','ParseService', 
+function($scope,ParseServiceInit,$http,$httpParamSerializerJQLike,$q,$timeout,ParseService) {
 	
 	$scope.users = { from: {}, to: {} };
 	var params = parseQueryString();
@@ -179,7 +158,6 @@ function($scope,
 // 	}
 //	$scope.creditAddRow();
 //	$scope.creditAddRow();
-
 	var formDataMock = { expense:[ {username:"giovanna",what:"banane",howmuch:10,when:new Date("2016-01-30"),where:"abdul",sheeted:$scope.sheeted_default},
 		                           {username:"giovanna",what:"lamponi",howmuch:15,when:new Date("01/11/2016"),where:"abdul",sheeted:$scope.sheeted_default},
 		                           {username:"giovanna",what:"pomodori",howmuch:13,when:new Date("2016-12-01"),where:"abdul",sheeted:$scope.sheeted_default},
@@ -188,21 +166,17 @@ function($scope,
 							credit:[ {username:"giovanna",what:"cose",howmuch:30,when:new Date("01-01-2016"),sheeted:$scope.sheeted_default},
 									 {username:"giovanna",what:"cose2",howmuch:20,when:new Date("01-02-2016"),sheeted:$scope.sheeted_default} ]};
 //	$scope.formData = formDataMock;
-	// test - end
-	
-	
+	// test - end	
 	
 	$scope.toParse = function() {
-//		console.log(JSON.stringify($scope.formData));
-		normalizeBeforeSubmit($scope.formData, $scope.expenseRemoveRow, $scope.creditRemoveRow);
+		console.log(JSON.stringify($scope.formData));
+		normalizeBeforeSubmit($scope.formData);
 		
 		$scope.submitted = true;
 		
-//		console.log(JSON.stringify( $scope.formData ));
+		console.log(JSON.stringify( $scope.formData ));
 		// reset isError
 		$scope.result.isError = false;
-//		console.log(ParseService);
-//		console.log(typeof ParseService.exec);
 		ParseService.exec($scope.formData,$scope.result);
 		
 		setTimeout(function() {
@@ -210,43 +184,9 @@ function($scope,
 			$(window).scrollTop(resultPosition.top+50);
 		},500);
 	};
-	
-	
-	function normalizeBeforeSubmit(formData, expenseRemoveRowFunction, creditRemoveRowFunction) {
-//		remove empty item from empty row in form
-		var classes = ["credit","expense"];
-		for (var ci in classes) {
-			var classData = classes[ci];
-			var classDataArray = formData[ classData ];
-			for (var cdi in classDataArray) {
-				var item = classDataArray[cdi];
-				var removed = removeEmptyBeforeSubmit(classDataArray, item);
-				if (removed) {
-					if (classData == "credit") {
-						creditRemoveRowFunction();
-					}
-					if (classData == "expense") {
-						expenseRemoveRowFunction();
-					}
-					continue;
-				}
-				
-//				var epoch = getEpochTime(item.when);
-//				console.log(epoch);
-//				item.when = getEpochTime(epoch);
-			}
-		}
-	}
-	function removeEmptyBeforeSubmit(classDataArray, item) {
-		if (isEmptyItem(item, ['sheeted','username'])) {
-			classDataArray.splice(classDataArray,1);			
-			return true;
-		}
-	}
 }])
 // from https://gist.github.com/maikeldaloo/5133963 and https://gist.github.com/wladston/5610098
-// do not change its name!
-.directive('customSubmit', function() {
+.directive('SubmitWithValidation', function() {
 	return {
 		restrict: 'A',
 		link: function( scope , element , attributes ) {
@@ -272,8 +212,6 @@ function($scope,
 				});
 				scope.$apply();
 				
-//				console.log(attributes);
-				
 				// Do not continue if the form is invalid.
 				if ( form.$invalid ) {
 					// original, not working
@@ -291,27 +229,14 @@ function($scope,
 					return false;
 				}
 				
-//				console.log(attributes);
-					
 				// From this point and below, we can assume that the form is valid.
-				scope.$eval( attributes.customSubmit );
+				scope.$eval( attributes.SubmitWithValidation );
 				scope.$apply();
 			});
 		}
 	};
 })
-/*.directive('focusOn',function($timeout) {
-    return {
-        restrict : 'A',
-        link : function($scope,$element,$attr) {
-            $scope.$watch($attr.focusOn,function(_focusVal) {
-                $timeout(function() {
-                    _focusVal ? $element.focus() : $element.blur();
-                });
-            });
-        }
-    };
-})*/
+// used in index.html
 .directive('focusOnShow', function($timeout) {
     return {
         restrict: 'A',
@@ -330,8 +255,32 @@ function($scope,
     };
 });
 
-
-
+function getLanguage() {
+	var lang = window.navigator.language || window.navigator.userLanguage;
+	console.log(lang);
+	return lang;
+}
+function normalizeBeforeSubmit(formData,keys) {
+//	remove empty item from empty row in form
+	var classes = ["credit","expense"];
+	for (var ci in classes) {
+		var classDataArray = formData[ classes[ci] ];
+		for (var cdi in classDataArray) {
+			var item = classDataArray[cdi];
+			var r = removeEmptyBeforeSubmit(classDataArray, item);
+			if (r) { continue; }
+		}
+	}
+}
+function removeEmptyBeforeSubmit(classDataArray, item) {
+	if (isEmptyItem(item, ['sheeted','username'])) {
+		classDataArray.splice(classDataArray,1);
+		return true;
+	}
+}
+function getEpochTime(dateAsString) {
+	return new Date(dateAsString).getTime();
+}
 
 var AngularFormPrepareModel = {
 	expense: [], 
@@ -361,8 +310,4 @@ var AngularFormResultModel = {
 			message : ""
 		}]
 	}
-};
-
-//function addRequired(field) {
-//	var html = '<div style="color:red" ng-show="'+expenseInnerFormWhat+'{{r}}.what.$touched && '+expenseInnerFormWhat+'{{r}}.what.$invalid"><div ng-show="'+expenseInnerFormWhat+'{{r}}.what.$error.required || submitted"><span data-i18n="error_required"></span></div>';
-//}
+}
